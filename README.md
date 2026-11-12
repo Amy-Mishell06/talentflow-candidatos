@@ -213,27 +213,22 @@ Todas las capturas usan datos ficticios.
 ### Formulario de registro
 Formulario organizado en tarjetas: datos personales, perfil profesional, disponibilidad, resumen y consentimiento.
 
-<img src="docs/capturas/01-formulario.png" alt="Formulario de registro" width="320">
+<img width="350" alt="image" src="https://github.com/user-attachments/assets/d586b4d0-66a9-4c8f-a01f-8e199c0726da" />
 
 ### Validaciones
 Al intentar guardar con datos inválidos, cada campo muestra su mensaje de error y no se envía nada a Firebase.
 
-<img src="docs/capturas/02-validacion.png" alt="Mensajes de validación" width="320">
+<img width="350" alt="image" src="https://github.com/user-attachments/assets/60bdd7cf-0085-4070-a816-79c63220a19e" />
 
 ### Listado de candidatos
-Datos leídos desde Firestore con `getDocs()`: nombre, cargo, experiencia, habilidades y modalidad, con búsqueda y filtro.
+Datos leídos desde Firestore: nombre, cargo, experiencia, habilidades y modalidad, con búsqueda y filtro.
 
-<img src="docs/capturas/03-lista.png" alt="Listado de candidatos" width="320">
+<img width="350" alt="image" src="https://github.com/user-attachments/assets/bf3cf891-852c-47a8-8719-d452461cb32a" />
 
 ### Detalle del candidato
 Modal con la hoja de vida completa del registro seleccionado.
 
-<img src="docs/capturas/04-detalle.png" alt="Detalle del candidato" width="320">
-
-### Documentos en Cloud Firestore
-Colección `candidatos` con los campos guardados como atributos independientes y `creadoEn` como timestamp.
-
-<img src="docs/capturas/05-firestore.png" alt="Documentos en Firestore" width="640">
+<img width="350" alt="image" src="https://github.com/user-attachments/assets/7402a78c-cd90-49fe-85e2-57fce839b783" />
 
 ## 9. Casos de prueba
 
