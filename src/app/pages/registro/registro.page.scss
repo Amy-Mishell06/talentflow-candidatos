@@ -1,0 +1,56 @@
+.intro {
+  color: var(--ion-color-medium);
+  font-size: 0.9rem;
+  margin: 0 0 4px;
+}
+
+ion-card {
+  margin-top: 12px;
+}
+
+ion-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.05rem;
+
+  ion-icon {
+    color: var(--ion-color-primary);
+  }
+}
+
+.sin-padding {
+  padding: 0;
+}
+
+.subtitulo {
+  margin-top: 8px;
+
+  ion-label {
+    font-weight: 600;
+    color: var(--ion-color-dark);
+  }
+
+  small {
+    font-weight: 400;
+    color: var(--ion-color-medium);
+  }
+}
+
+.habilidades {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.error {
+  color: var(--ion-color-danger);
+  font-size: 0.8rem;
+  padding: 4px 16px 8px;
+}
+
+.acciones {
+  margin: 16px 0 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

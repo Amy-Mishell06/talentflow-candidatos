@@ -1,0 +1,165 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Candidatos</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cargar()" [disabled]="cargando" aria-label="Recargar">
+        <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-searchbar placeholder="Buscar por nombre" [debounce]="200" [value]="busqueda"
+      (ionInput)="busqueda = $event.detail.value ?? ''"></ion-searchbar>
+  </ion-toolbar>
+  <ion-toolbar class="filtros">
+    <ion-select label="Cargo" interface="popover" [value]="filtroCargo"
+      (ionChange)="filtroCargo = $event.detail.value">
+      <ion-select-option value="todos">Todos</ion-select-option>
+      @for (c of cargos; track c) {
+        <ion-select-option [value]="c">{{ c }}</ion-select-option>
+      }
+    </ion-select>
+    <ion-select label="Orden" interface="popover" [value]="orden" (ionChange)="orden = $event.detail.value">
+      <ion-select-option value="recientes">Más recientes</ion-select-option>
+      <ion-select-option value="antiguos">Más antiguos</ion-select-option>
+      <ion-select-option value="nombre">Nombre A–Z</ion-select-option>
+    </ion-select>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="refrescar($event)">
+    <ion-refresher-content pullingText="Desliza para actualizar"
+      refreshingText="Consultando Firestore…"></ion-refresher-content>
+  </ion-refresher>
+
+  @if (cargando && candidatos.length === 0) {
+    <div class="estado">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando candidatos desde Firestore…</p>
+    </div>
+  } @else if (error) {
+    <ion-card color="danger" class="ion-margin">
+      <ion-card-content class="estado-error">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        <p>{{ error }}</p>
+        <ion-button fill="outline" color="light" (click)="cargar()">Reintentar</ion-button>
+      </ion-card-content>
+    </ion-card>
+  } @else if (candidatos.length === 0) {
+    <div class="estado">
+      <ion-icon name="people-outline"></ion-icon>
+      <p>Aún no hay candidatos registrados.</p>
+    </div>
+  } @else {
+    <ion-list>
+      <ion-list-header>
+        <ion-label>{{ filtrados.length }} de {{ candidatos.length }} candidatos</ion-label>
+      </ion-list-header>
+
+      @for (c of filtrados; track c.id) {
+        <ion-item button (click)="abrirDetalle(c)">
+          <ion-avatar slot="start" class="avatar">{{ iniciales(c.nombres) }}</ion-avatar>
+          <ion-label>
+            <h2>{{ c.nombres }}</h2>
+            <p>{{ c.cargo }} · {{ c.experienciaAnios }} {{ c.experienciaAnios === 1 ? 'año' : 'años' }}</p>
+            <p class="chips-mini">{{ c.habilidades.join(' · ') }}</p>
+          </ion-label>
+          <div slot="end" class="lado">
+            <ion-badge [color]="colorModalidad(c.modalidad)">{{ c.modalidad }}</ion-badge>
+            @if (fechaCreacion(c); as f) {
+              <ion-note>{{ f | date: 'dd/MM/yy' }}</ion-note>
+            }
+          </div>
+        </ion-item>
+      } @empty {
+        <div class="estado">
+          <p>No hay candidatos que coincidan con la búsqueda o el filtro.</p>
+        </div>
+      }
+    </ion-list>
+  }
+
+  <!-- ===================== DETALLE (modal) ===================== -->
+  <ion-modal [isOpen]="seleccionado !== null" (didDismiss)="cerrarDetalle()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar color="primary">
+          <ion-title>Hoja de vida</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="cerrarDetalle()" aria-label="Cerrar">
+              <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding">
+        @if (seleccionado; as c) {
+          <div class="cabecera">
+            <ion-avatar class="avatar grande">{{ iniciales(c.nombres) }}</ion-avatar>
+            <h1>{{ c.nombres }}</h1>
+            <p>{{ c.cargo }}</p>
+            <ion-badge [color]="colorModalidad(c.modalidad)">{{ c.modalidad }}</ion-badge>
+          </div>
+
+          <ion-list lines="full" class="detalle">
+            <ion-list-header><ion-label>Datos personales</ion-label></ion-list-header>
+            <ion-item>
+              <ion-icon name="mail-outline" slot="start"></ion-icon>
+              <ion-label><p>Correo</p><h3>{{ c.correo }}</h3></ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-icon name="call-outline" slot="start"></ion-icon>
+              <ion-label><p>Teléfono</p><h3>{{ c.telefono }}</h3></ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-label>
+                <p>Fecha de nacimiento</p>
+                <h3>{{ fechaTexto(c.fechaNacimiento) }} ({{ edad(c.fechaNacimiento) }} años)</h3>
+              </ion-label>
+            </ion-item>
+
+            <ion-list-header><ion-label>Perfil profesional</ion-label></ion-list-header>
+            <ion-item>
+              <ion-label><p>Nivel académico</p><h3>{{ c.nivelAcademico }}</h3></ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-label><p>Experiencia</p><h3>{{ c.experienciaAnios }} {{ c.experienciaAnios === 1 ? 'año' : 'años' }}</h3></ion-label>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-label><p>Habilidades técnicas</p></ion-label>
+            </ion-item>
+            <div class="chips">
+              @for (h of c.habilidades; track h) {
+                <ion-chip color="primary" [outline]="true">{{ h }}</ion-chip>
+              }
+            </div>
+
+            <ion-list-header><ion-label>Disponibilidad</ion-label></ion-list-header>
+            <ion-item>
+              <ion-label><p>Disponible desde</p><h3>{{ fechaTexto(c.fechaDisponibilidad) }}</h3></ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-label>
+                <p>Aspiración salarial</p>
+                <h3>{{ c.aspiracionSalarial | currency: 'USD' : 'symbol' : '1.0-2' }}</h3>
+              </ion-label>
+            </ion-item>
+
+            <ion-list-header><ion-label>Resumen profesional</ion-label></ion-list-header>
+            <ion-item lines="none">
+              <ion-text class="resumen">{{ c.resumen }}</ion-text>
+            </ion-item>
+          </ion-list>
+
+          <p class="meta">
+            ID: {{ c.id }}<br />
+            @if (fechaCreacion(c); as f) { Registrado: {{ f | date: 'dd/MM/yyyy HH:mm' }} · }
+            Consentimiento: {{ c.consentimiento ? 'Sí' : 'No' }}
+          </p>
+        }
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</ion-content>

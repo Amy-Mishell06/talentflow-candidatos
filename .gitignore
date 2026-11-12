@@ -1,0 +1,11 @@
+node_modules/
+www/
+dist/
+.angular/
+.vscode/
+*.log
+.DS_Store
+# Nunca subir credenciales administrativas
+*serviceAccount*.json
+*.pem
+.env
